@@ -83,9 +83,17 @@ public class ServletOne extends HttpServlet {
 			for (User u : users) {
 				out.print("<tr><td><b>" + u.getId() + "</b></td><td>" + u.getFirstname() + "</td><td>" + u.getLastname()
 						+ "</td><td>" + u.getUsername() + "</td><td>" + u.getPassword() + "</td>"
-						+ "<td><a href=servlet?register&edit&id=" + u.getId()
-						+ ">Edit</a></td><td><a href=servlet?delete&id=" + u.getId() + ">Delete</a></td></tr>");
+						+ "<td><a href=servlet?register&edit&id=" + u.getId() + ">Edit</a></td>");
+
+				out.print("<form method='POST' action='servlet'>");
+				out.print("<input type='hidden' name='delete' value=" + u.getId() + ">");
+				out.print("<td><input type='submit' value='Delete'></td></tr>");
+				out.print("</form>");
 			}
+
+			//
+			//
+
 			out.print("</table>");
 			out.print("<hr><a href='servlet?register'>ADD USER</a>");
 			out.print("</center>");
@@ -152,6 +160,10 @@ public class ServletOne extends HttpServlet {
 				response.sendRedirect("servlet?message=0");
 
 			}
+		} else if (request.getParameter("delete") != null) {
+			int id = Integer.parseInt(request.getParameter("delete"));
+			userRepository.delete(id);
+			response.sendRedirect("servlet?all");
 		}
 	}
 
