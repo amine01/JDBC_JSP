@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -75,39 +76,47 @@ public class ServletOne extends HttpServlet {
 			}
 
 		} else if (request.getParameter("all") != null) {
-			List<User> users = userRepository.findAll();
-			out.print("<center>");
-			out.println("<h1>ALL USERS</h1>");
-			out.print("<table>");
-			out.print("<tr><th>ID</th><th>FIRST NAME</th><th>LAST NAME</th><th>USER NAME</th><th>PASSWORD</th></tr>");
-			for (User u : users) {
-				out.print("<tr><td><b>" + u.getId() + "</b></td><td>" + u.getFirstname() + "</td><td>" + u.getLastname()
-						+ "</td><td>" + u.getUsername() + "</td><td>" + u.getPassword() + "</td>"
-						+ "<td><a href=servlet?register&edit&id=" + u.getId() + ">Edit</a></td>");
+			String username = null;
+			String password = null;
+			Cookie[] cookies = request.getCookies();
+			if (cookies != null) {
+				for (int i = 0; i < cookies.length; i++) {
+					if (cookies[i].getName().equals("username"))
+						username = cookies[i].getValue();
+					if (cookies[i].getName().equals("password"))
+						password = cookies[i].getValue();
+				}
 
-				out.print("<form method='POST' action='servlet'>");
-				out.print("<input type='hidden' name='delete' value=" + u.getId() + ">");
-				out.print("<td><input type='submit' value='Delete'></td></tr>");
-				out.print("</form>");
+				if (username != null && password != null && userRepository.isOK(username, password)) {
+					List<User> users = userRepository.findAll();
+					out.print("<center>");
+					out.println("<h1>ALL USERS</h1>");
+					out.print("<table>");
+					out.print(
+							"<tr><th>ID</th><th>FIRST NAME</th><th>LAST NAME</th><th>USER NAME</th><th>PASSWORD</th></tr>");
+					for (User u : users) {
+						out.print("<tr><td><b>" + u.getId() + "</b></td><td>" + u.getFirstname() + "</td><td>"
+								+ u.getLastname() + "</td><td>" + u.getUsername() + "</td><td>" + u.getPassword()
+								+ "</td>" + "<td><a href=servlet?register&edit&id=" + u.getId() + ">Edit</a></td>");
+
+						out.print("<form method='POST' action='servlet'>");
+						out.print("<input type='hidden' name='delete' value=" + u.getId() + ">");
+						out.print("<td><input type='submit' value='Delete'></td></tr>");
+						out.print("</form>");
+					}
+					out.print("</table>");
+					out.print("<hr><a href='servlet?register'>ADD USER</a>");
+					out.print("</center>");
+				} else {
+					response.sendRedirect("servlet?login");
+				}
+			} else {
+				response.sendRedirect("servlet?login");
 			}
-
-			//
-			//
-
-			out.print("</table>");
-			out.print("<hr><a href='servlet?register'>ADD USER</a>");
-			out.print("</center>");
-		} else if (request.getParameter("edit") != null) {
-
-			response.sendRedirect("servlet?register&edit");
-
-		} else if (request.getParameter("delete") != null) {
-			int id = Integer.parseInt(request.getParameter("id"));
-			userRepository.delete(id);
-			response.sendRedirect("servlet?all");
 		}
 
-		else {// (request.getParameter("login") != null)
+		else if (request.getParameter("login") != null) { // (request.getParameter("login")
+															// != null)
 			out.print("<center>");
 			out.print("<h1>Authentification</h1>");
 			out.print("<i style=\"color:red\">");
@@ -133,10 +142,9 @@ public class ServletOne extends HttpServlet {
 			throws ServletException, IOException {
 
 		if (request.getParameter("register") != null) {
+
 			if (request.getParameter("edit") != null && request.getParameter("id") != null) {
-
 				int id = Integer.parseInt(request.getParameter("id"));
-
 				User uToUpdate = userRepository.findOne(id);
 				uToUpdate.setFirstname(request.getParameter("fname"));
 				uToUpdate.setLastname(request.getParameter("lname"));
@@ -154,10 +162,16 @@ public class ServletOne extends HttpServlet {
 		} else if (request.getParameter("login") != null) {
 			if (userRepository.isOK(request.getParameter("uname"), request.getParameter("passw"))) {
 				System.out.println("oui");
+				Cookie cUsername = new Cookie("username", request.getParameter("uname"));
+				Cookie cPassword = new Cookie("password", request.getParameter("passw"));
+				cUsername.setMaxAge(1000);
+				cPassword.setMaxAge(1000);
+				response.addCookie(cUsername);
+				response.addCookie(cPassword);
 				response.sendRedirect("servlet?all");
 			} else {
 				System.out.println("non");
-				response.sendRedirect("servlet?message=0");
+				response.sendRedirect("servlet?login&message=0");
 
 			}
 		} else if (request.getParameter("delete") != null) {
