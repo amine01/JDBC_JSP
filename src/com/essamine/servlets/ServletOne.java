@@ -86,6 +86,8 @@ public class ServletOne extends HttpServlet {
 
 				if (loggedIn == null || !loggedIn.equals("yes"))
 					response.sendRedirect("servlet?login");
+				
+				// display ip info
 				List<User> users = userRepository.findAll();
 				out.print("<center>");
 				out.println("<h1>ALL USERS</h1>");
