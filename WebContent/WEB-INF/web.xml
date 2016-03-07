@@ -17,4 +17,21 @@
 		<url-pattern>/servlet</url-pattern>
 	</servlet-mapping>
 
+	<!-- listner -->
+	<listener>
+		<display-name>listnerone</display-name>
+		<listener-class>com.essamine.listners.ClassListner</listener-class>
+	</listener>
+
+
+	<!-- Filter -->
+	<filter>
+		<filter-name>filterone</filter-name>
+		<filter-class>com.essamine.filters.CustomFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>filterone</filter-name>
+		<servlet-name>servletOne</servlet-name>
+	</filter-mapping>
 </web-app>

@@ -1,4 +1,4 @@
-package com.essamine.servlets;
+package com.essamine.listners;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -29,6 +29,7 @@ public class ClassListner implements ServletContextListener, ServletContextAttri
 		sc.setAttribute("pcounter", Integer.toString(counter));
 		System.out.println("Application initialized");
 
+		sc.setAttribute("globalAttribute", "Global Attribute");
 	}
 
 	@Override
