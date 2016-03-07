@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -107,8 +108,10 @@ public class ServletOne extends HttpServlet {
 
 		}
 
-		else if (request.getParameter("login") != null) { // (request.getParameter("login")
-															// != null)
+		else if (request.getParameter("login") != null) {
+			ServletContext sc = getServletContext();
+			String ga = (String) sc.getAttribute("globalAttribute");
+			out.print("<i>" + ga + "</i>");
 			out.print("<center>");
 			out.print("<h1>Authentification</h1>");
 			out.print("<i style=\"color:red\">");
